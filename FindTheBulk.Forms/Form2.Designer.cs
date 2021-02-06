@@ -51,7 +51,7 @@ namespace FindTheBulk.Forms
             this.Controls.Add(this.itemListBox);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form2";
-            this.Text = "FindTheBulk - File listing by size";
+            this.Text = "FindTheBulk - File search";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form2_FormClosed);
             this.ResumeLayout(false);
 
