@@ -5,6 +5,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <ApplicationIcon>folder.ico</ApplicationIcon>
     <StartupObject>FindTheBulk.ConsoleApp.Program</StartupObject>
+    <AssemblyName>FindTheBulk</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
