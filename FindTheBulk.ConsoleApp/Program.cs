@@ -46,16 +46,21 @@ namespace FindTheBulk.ConsoleApp
             Write("Starting Directory: ");
             options.RootDirectory = new DirectoryInfo(ReadLine().Trim());
 
+            Write("Search Pattern (default: *): ");
+            options.SearchPattern = ReadLine().Trim();
+
             Write("Search Directory Recursively? (Y/N): ");
             var input = ReadKey().KeyChar;
 
             options.SearchRecursively = char.ToUpper(input) == 'Y';
-
+            
             return options;
         }
 
         private static void FileSelectionMenu()
         {
+            Title = $"{TITLE_BASE} Status: Finished - Files Found: {_files.Count}";
+
             while (true)
             {
                 const int max_allowable = 10;
@@ -123,7 +128,7 @@ namespace FindTheBulk.ConsoleApp
 
         private static async Task BeginFileScannerAsync(UserOptions options)
         {
-            _scanner = new FileScanner(options.RootDirectory, options.SearchRecursively);
+            _scanner = new FileScanner(options.RootDirectory, options.SearchRecursively, options.SearchPattern);
             _scanner.FileFoundEventHandler += PrintScannerFileFound;
             _scanner.SearchFinishedEventHandler += ScannerSearchFinished;
             await _scanner.StartAsync();
@@ -131,13 +136,25 @@ namespace FindTheBulk.ConsoleApp
         
         private static void ShowFilesCount()
         {
-            Title =$"{TITLE_BASE} Files Found: {_files.Count}";
+            Title =$"{TITLE_BASE} Status: Scanning... - Files Found: {_files.Count}";
         }
     }
 
     internal class UserOptions
     {
+        private string _searchPattern = "*";
+
         internal DirectoryInfo RootDirectory { get; set; }
         internal bool SearchRecursively { get; set; }
+
+        internal string SearchPattern
+        {
+            get => _searchPattern;
+            set
+            {
+                if (value.Length > 0)
+                    _searchPattern = value;
+            }
+        }
     }
 }

@@ -9,14 +9,16 @@ namespace FindTheBulk.ClassLibrary
     {
         private DirectoryInfo _rootDirectory;
         private bool _recurseDirectories;
+        private string _searchPattern;
 
         public EventHandler<FileFoundEventArgs> FileFoundEventHandler;
         public EventHandler<SearchFinishedEventArgs> SearchFinishedEventHandler;
 
-        public FileScanner(DirectoryInfo rootDirectory, bool recurseDirectories)
+        public FileScanner(DirectoryInfo rootDirectory, bool recurseDirectories, string searchPattern = "*")
         {
             _rootDirectory = rootDirectory;
             _recurseDirectories = recurseDirectories;
+            _searchPattern = searchPattern;
         }
 
         private void PushFileFoundEvent(FileFoundEventArgs e) => FileFoundEventHandler?.Invoke(this, e);
@@ -24,23 +26,7 @@ namespace FindTheBulk.ClassLibrary
 
         public async Task StartAsync()
         {
-            if (_recurseDirectories)
-            {
-                await RecursiveFileScanAsync(_rootDirectory);
-            }
-            else
-            {
-                try
-                {
-                    foreach (var fileInfo in _rootDirectory.GetFiles("*", SearchOption.TopDirectoryOnly))
-                        PushFileFoundEvent(new FileFoundEventArgs { File = fileInfo });
-                }
-                catch (UnauthorizedAccessException e)
-                {
-                    Debug.WriteLine(e.ToString());
-                }
-            }
-
+            await RecursiveFileScanAsync(_rootDirectory);
             PushSearchFinishedEvent(new SearchFinishedEventArgs());
         }
         
@@ -48,8 +34,11 @@ namespace FindTheBulk.ClassLibrary
         {
             try
             {
-                foreach (var fileInfo in lastDirectory.GetFiles("*", SearchOption.TopDirectoryOnly))
+                foreach (var fileInfo in lastDirectory.GetFiles(_searchPattern, SearchOption.TopDirectoryOnly))
                     PushFileFoundEvent(new FileFoundEventArgs { File = fileInfo });
+
+                if (!_recurseDirectories)
+                    return;
 
                 foreach (var dir in lastDirectory.GetDirectories())
                     await Task.Run(() => RecursiveFileScanAsync(dir));
